@@ -69,11 +69,19 @@ pipeline {
 
   post {
     always {
-      emailext(
-        subject: "Jenkins ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${currentBuild.currentResult}",
-        body: "Job: ${env.JOB_NAME}\nBuild: ${env.BUILD_URL}\nBranch: ${env.BRANCH_NAME}\nResult: ${currentBuild.currentResult}",
-        to: '${DEFAULT_RECIPIENTS}'
-      )
+      script {
+        def msg = "Job: ${env.JOB_NAME}\nBuild: ${env.BUILD_URL}\nBranch: ${env.BRANCH_NAME}\nResult: ${currentBuild.currentResult}"
+        echo "NOTIFY: ${msg}"
+        try {
+          emailext(
+            subject: "Jenkins ${env.JOB_NAME} #${env.BUILD_NUMBER}: ${currentBuild.currentResult}",
+            body: msg,
+            to: '${DEFAULT_RECIPIENTS}'
+          )
+        } catch (err) {
+          echo "email-ext skipped: ${err}"
+        }
+      }
     }
     cleanup {
       sh 'docker logout || true'
