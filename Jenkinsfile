@@ -66,9 +66,11 @@ pipeline {
         withCredentials([file(credentialsId: 'kubeconfig-exam', variable: 'KUBECONFIG')]) {
           sh '''
             set -e
-            kubectl apply -f k8s/deployment.yaml
-            kubectl set image deployment/devops-exam-app app=${IMAGE}:${IMAGE_TAG}
-            kubectl rollout status deployment/devops-exam-app --timeout=180s
+            export KUBECTL="kubectl --kubeconfig=$KUBECONFIG"
+            $KUBECTL apply -f k8s/deployment.yaml
+            $KUBECTL set image deployment/devops-exam-app app=${IMAGE}:${IMAGE_TAG}
+            $KUBECTL rollout status deployment/devops-exam-app --timeout=180s
+            $KUBECTL get pods -o wide
           '''
         }
       }
