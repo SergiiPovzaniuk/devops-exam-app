@@ -37,8 +37,9 @@ pipeline {
       steps {
         script {
           env.IMAGE_TAG = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
+          env.BRANCH_TAG = env.BRANCH_NAME.replaceAll('[^a-zA-Z0-9_.-]', '-')
         }
-        sh "docker build -t ${IMAGE}:${IMAGE_TAG} -t ${IMAGE}:latest ."
+        sh "docker build -t ${IMAGE}:${IMAGE_TAG} -t ${IMAGE}:${BRANCH_TAG} ."
       }
     }
 
@@ -49,7 +50,11 @@ pipeline {
             set -e
             echo "$DH_PASS" | docker login -u "$DH_USER" --password-stdin
             docker push ${IMAGE}:${IMAGE_TAG}
-            docker push ${IMAGE}:latest
+            docker push ${IMAGE}:${BRANCH_TAG}
+            if [ "$BRANCH_NAME" = "main" ]; then
+              docker tag ${IMAGE}:${IMAGE_TAG} ${IMAGE}:latest
+              docker push ${IMAGE}:latest
+            fi
           '''
         }
       }
@@ -58,7 +63,7 @@ pipeline {
     stage('Deploy') {
       when {
         allOf {
-          branch 'main'
+          anyOf { branch 'develop'; branch 'main' }
           expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
         }
       }

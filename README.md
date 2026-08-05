@@ -30,7 +30,11 @@ curl http://<node-ip>:30080/api/info
 
 ## CI/CD
 
-Jenkins Multibranch Pipeline (folder `devops-exam-app`):
+Jenkins Multibranch (folder `devops-exam-app`):
 
-- any branch: test → build → push Docker Hub
-- `main`: also deploy to kubeadm cluster
+| Branch | Trigger | Pipeline |
+|--------|---------|----------|
+| `develop` | automatic on push | test → build → publish → deploy |
+| `main` | **manual** in Jenkins | test → build → publish → deploy |
+
+App traffic: AWS NLB → NodePort 30080 on all nodes.
