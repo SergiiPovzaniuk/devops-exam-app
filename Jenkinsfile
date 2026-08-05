@@ -31,17 +31,9 @@ pipeline {
             bash -lc "pip install -q -r requirements-dev.txt && pytest -q"
         '''
       }
-      post {
-        failure {
-          error('Tests failed — blocking Build/Publish/Deploy')
-        }
-      }
     }
 
     stage('Build') {
-      when {
-        expression { currentBuild.currentResult == null || currentBuild.currentResult == 'SUCCESS' }
-      }
       steps {
         script {
           env.IMAGE_TAG = sh(returnStdout: true, script: 'git rev-parse --short HEAD').trim()
@@ -51,9 +43,6 @@ pipeline {
     }
 
     stage('Publish') {
-      when {
-        expression { currentBuild.currentResult == null || currentBuild.currentResult == 'SUCCESS' }
-      }
       steps {
         withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DH_USER', passwordVariable: 'DH_PASS')]) {
           sh '''
@@ -70,7 +59,7 @@ pipeline {
       when {
         allOf {
           branch 'main'
-          expression { currentBuild.currentResult == null || currentBuild.currentResult == 'SUCCESS' }
+          expression { currentBuild.resultIsBetterOrEqualTo('SUCCESS') }
         }
       }
       steps {
