@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>devops-exam-app</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main>
+    <h1>devops-exam-app</h1>
+    <p class="sub">Load-balanced identity probe</p>
+    <section id="card">
+      <dl id="fields"></dl>
+    </section>
+    <button id="refresh" type="button">Refresh</button>
+  </main>
+  <script>
+    window.__BOOT__ = {{ info | tojson }};
+  </script>
+  <script src="/static/app.js"></script>
+</body>
+</html>
