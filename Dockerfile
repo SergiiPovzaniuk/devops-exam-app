@@ -11,4 +11,4 @@ COPY app ./app
 ENV PORT=8080 PYTHONUNBUFFERED=1
 EXPOSE 8080
 USER appuser
-CMD ["gunicorn", "-b", "0.0.0.0:8080", "-w", "2", "app.main:app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8080", "-w", "2", "--access-logfile", "-", "--error-logfile", "-", "app.main:app"]
